@@ -30,3 +30,22 @@ def test_file_upload(page):
     page.locator('input#file-upload').set_input_files('/Users/Elizabeth.Zagroba/Desktop/htsm.pdf')
     page.click("#file-submit")
     expect(page.locator("#uploaded-files")).to_have_text("htsm.pdf")
+
+def test_exit_intent():
+    """easier to test with a mouse, why would you automate?"""
+    pass
+
+def test_floating_menu(page):
+    page.goto("https://the-internet.herokuapp.com/floating_menu")
+    page.mouse.wheel(0, 1470000)
+    page.locator("a[href='#contact']").click()
+    """playwright won't let you check visibility within the viewport as opposed to the 
+    whole DOM."""
+
+def test_redirect(page, browser):
+    # this is a mess! what we want to do is click the link and check that we have a 302
+    context = browser.new_context(base_url="https://the-internet.herokuapp.com/redirector")
+    api_request_context = context.request
+    response = api_request_context.post("http://selenium.thinkcode.se/selectColor")
+    assert response.status == 500
+    page.locator('#redirect').click()

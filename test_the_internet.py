@@ -42,10 +42,17 @@ def test_floating_menu(page):
     """playwright won't let you check visibility within the viewport as opposed to the 
     whole DOM."""
 
-def test_redirect(page, browser):
-    # this is a mess! what we want to do is click the link and check that we have a 302
-    context = browser.new_context(base_url="https://the-internet.herokuapp.com/redirector")
-    api_request_context = context.request
-    response = api_request_context.post("http://selenium.thinkcode.se/selectColor")
-    assert response.status == 500
-    page.locator('#redirect').click()
+def test_redirect(page):
+    page.goto("https://the-internet.herokuapp.com/redirector")
+    with page.expect_navigation():
+        page.click("#redirect")
+    expect(page).to_have_url("https://the-internet.herokuapp.com/status_codes")
+    what_our_page_ended = page.goto("https://the-internet.herokuapp.com/redirect")
+    assert what_our_page_ended.request.redirected_from.response().status == 302
+
+def test_404(page):
+    page.goto("https://the-internet.herokuapp.com/status_codes")
+    with page.expect_navigation():
+        page.click("a[href='status_codes/404']")
+    where_our_page_ended = page.goto("https://the-internet.herokuapp.com/status_codes/404")
+    assert where_our_page_ended.status == 404

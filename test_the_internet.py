@@ -56,3 +56,52 @@ def test_404(page):
         page.click("a[href='status_codes/404']")
     where_our_page_ended = page.goto("https://the-internet.herokuapp.com/status_codes/404")
     assert where_our_page_ended.status == 404
+
+def test_typos():
+    """don't test typos, fix them."""
+    pass
+
+def test_iframe(page):
+    page.goto("https://the-internet.herokuapp.com/iframe")
+    my_text_input = page.frame_locator("#mce_0_ifr").locator("#tinymce")
+    my_text_input.fill("Let's just write something inside.")
+    my_text_input.select_text()
+    page.locator("[aria-label='Bold']").click()
+    page.locator("[title='styles']").click()
+    page.locator("[title='Inline']").hover()
+    page.locator("[title='Code']").click()
+
+def test_nested_frames():
+    """this is browser functionality, why would we automate or even test this?"""
+    pass
+
+def test_login_page(page):
+    page.goto("https://the-internet.herokuapp.com/login")
+    page.locator("#username").fill("tomsmith")
+    page.locator("#password").fill("SuperSecretPassword!")
+    with page.expect_navigation():
+        page.click("button[type='Submit']")
+    assert "You logged into a secure area!" in page.locator("#flash-messages").inner_text()
+
+def test_table_easy_mode_last_name_sorting(page):
+    page.goto("https://the-internet.herokuapp.com/tables")
+    page.locator("//span[contains(@class, 'last-name')]").click()
+    assert page.locator('#table2 > tbody td.last-name').nth(0).inner_text() == 'Bach'
+
+def test_table_easy_mode_try_to_delete_bach_and_just_give_up(page, browser):
+    page.goto("https://the-internet.herokuapp.com/tables")
+    lines = page.locator('#table2 > tbody td.last-name').all_inner_texts()
+    position = 0
+    for line in lines:
+        if line == "Bach":
+            break
+        position+=1
+    page.locator("#table2 > tbody td [href='#delete']").nth(position).click()
+    expect(page).to_have_url("https://the-internet.herokuapp.com/tables#delete")
+
+def test_table_hard_mode_last_name_sorting(page):
+    page.goto("https://the-internet.herokuapp.com/tables")
+    page.locator("#table1 > thead > tr span").nth(0).click()
+    assert page.locator('#table1 > tbody > tr td').nth(0).inner_text() == 'Bach'
+
+## next time - choose a new page

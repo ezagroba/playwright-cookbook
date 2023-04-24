@@ -12,7 +12,7 @@ def test_find_an_element(page):
 def test_request_password(page):
     page.goto("http://selenium.thinkcode.se/requestPassword")
     page.fill("#account", "horse")
-    page.click("name='submit']name='submit']")
+    page.click("name='submit'")
     assert page.inner_text('#confirmation') == "A new password has been sent to horse"
     assert page.inner_text("text=horse")
 
